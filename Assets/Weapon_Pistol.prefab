@@ -49,6 +49,13 @@ MonoBehaviour:
   weaponBulletCaseFX: {fileID: 0}
   weaponMuzzleFlashTransform: {fileID: 2809171467265063048}
   weaponBulletCaseTransform: {fileID: 3241708309839064400}
+  useProjectile: 0
+  bulletProjectile: {fileID: 0}
+  bulletSpawnPosition: {fileID: 0}
+  shootLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  shootDistance: 999
 --- !u!1 &3104499934495551171
 GameObject:
   m_ObjectHideFlags: 0
@@ -713,13 +720,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7867183660078763965}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.4721656, y: 0.43615994, z: -0.56270516, w: 0.51979524}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.5621933, y: 0.4659138, z: -0.52609116, w: 0.43599442}
+  m_LocalPosition: {x: -0.039, y: -0.063, z: 0.269}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3184537925739310888}
-  m_LocalEulerAnglesHint: {x: 0, y: 80, z: -94.54}
+  m_LocalEulerAnglesHint: {x: 0, y: 93.8, z: -100.7}
 --- !u!114 &3389029611735648481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -757,13 +764,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9205441897917673117}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5800211, y: -0.52430534, z: 0.31099072, w: 0.54033726}
-  m_LocalPosition: {x: 0.0024, y: -0.0825, z: 0.1266}
+  m_LocalRotation: {x: -0.44986188, y: -0.32362548, z: 0.48037896, w: 0.6797992}
+  m_LocalPosition: {x: 0.076, y: -0.0696, z: 0.1173}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3184537925739310888}
-  m_LocalEulerAnglesHint: {x: -17.5, y: -103.5, z: 81.94}
+  m_LocalEulerAnglesHint: {x: -17.5, y: -66.14, z: 81.94}
 --- !u!114 &7631458760325178615
 MonoBehaviour:
   m_ObjectHideFlags: 0

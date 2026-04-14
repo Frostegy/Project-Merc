@@ -5,31 +5,48 @@ public class WeaponAnimationManager : MonoBehaviour
     Animator weaponAnimator;
 
     [Header("Weapon FX")]
-    public GameObject weaponMuzzleFlashFX; // the muzzzle flash FX that is instantiated when the weapon is fired
-    public GameObject weaponBulletCaseFX; //the bullet case FX that is instantiated when the weapon is fired
+    public GameObject weaponMuzzleFlashFX;
+    public GameObject weaponBulletCaseFX;
 
     [Header("Weapon FX Transforms")]
-    public Transform weaponMuzzleFlashTransform; // the loaction where the muzzle flash FX is instantiated
-    public Transform weaponBulletCaseTransform; // the location where the bullet case FX is instantiated
+    public Transform weaponMuzzleFlashTransform;
+    public Transform weaponBulletCaseTransform;
+
+    [Header("Shooting")]
+    public bool useProjectile;
+    public Transform bulletProjectile;
+    public Transform bulletSpawnPosition;
+    public LayerMask shootLayerMask;
+    public float shootDistance = 999f;
 
     private void Awake()
     {
         weaponAnimator = GetComponentInChildren<Animator>();
     }
 
-    public void ShootWeapon(CameraController playerCamera)
+    public void ShootWeapon(Camera gameplayCamera, Vector3 aimWorldPosition)
     {
-        weaponAnimator.Play("Shoot"); // animate the weapon firing
+        weaponAnimator.Play("Shoot");
 
-        GameObject muzzleFlash = Instantiate(weaponMuzzleFlashFX, weaponMuzzleFlashTransform); // instantiate the muzzle flash FX at the correct location
-        muzzleFlash.transform.parent = null; // unparent the muzzle flash FX so it doesn't move with the weapon
-        GameObject bulletCase = Instantiate(weaponBulletCaseFX, weaponBulletCaseTransform); // instantiate the bullet case FX at the correct location
-        bulletCase.transform.parent = null; // unparent the bullet case FX so it doesn't move with the weapon
+        GameObject muzzleFlash = Instantiate(weaponMuzzleFlashFX, weaponMuzzleFlashTransform);
+        muzzleFlash.transform.parent = null;
 
-        RaycastHit hit;
-        if (Physics.Raycast(playerCamera.cameraObject.transform.position, playerCamera.cameraObject.transform.forward, out hit))
+        GameObject bulletCase = Instantiate(weaponBulletCaseFX, weaponBulletCaseTransform);
+        bulletCase.transform.parent = null;
+
+        Transform shootFrom = bulletSpawnPosition != null ? bulletSpawnPosition : weaponMuzzleFlashTransform;
+        Vector3 aimDirection = (aimWorldPosition - shootFrom.position).normalized;
+
+        if (useProjectile && bulletProjectile != null)
         {
-            Debug.Log(hit.transform.gameObject.name); 
+            Instantiate(bulletProjectile, shootFrom.position, Quaternion.LookRotation(aimDirection, Vector3.up));
+        }
+        else
+        {
+            if (Physics.Raycast(shootFrom.position, aimDirection, out RaycastHit hit, shootDistance, shootLayerMask))
+            {
+                Debug.Log(hit.transform.gameObject.name);
+            }
         }
     }
 }

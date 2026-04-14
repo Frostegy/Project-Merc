@@ -1,76 +1,56 @@
-using System.Runtime.CompilerServices;
-using Unity.Cinemachine;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    public Transform player;
     public InputManager inputManager;
-    PlayerManager playerManager;
+    public PlayerController playerController;
 
-    public Transform cameraPivot;
-    public Camera cameraObject;
+    [Header("Target Offset")]
+    public Vector3 targetOffset = new Vector3(0, 1.5f, 0);
 
+    [Header("Camera Look")]
+    public float normalLookSpeed = 120f;
+    public float aimLookSpeed = 80f;
+    public float minimumPivot = -35f;
+    public float maximumPivot = 60f;
 
-    public GameObject player;
-    public Transform aimedCameraPosition;
-
-    Vector3 cameraFollowVelocity = Vector3.zero;
-    Vector3 targetPosition;
+    float lookAngle;
+    float pivotAngle;
     Vector3 cameraRotation;
-    Quaternion targetRotation;
 
-    public float cameraSmoothTime = 0.2f;
-
-    float lookAmountVertical;
-    public float lookAmountHorizontal;
-    float maximumPivotAngle = 15;
-    float minimumPivotAngle = -15;
-
-    private void Awake()
+    private void Start()
     {
-        inputManager = player.GetComponent<InputManager>();
-        playerManager = player.GetComponent<PlayerManager>();
-    }
-    public void HandleAllCameraMovement()
-    {
-        FollowPlayer();
-        RotateCamera();
-    }
-
-    private void FollowPlayer()
-    {
-        if(playerManager.isAiming)
+        if (player != null)
         {
-            targetPosition = Vector3.SmoothDamp(transform.position, aimedCameraPosition.transform.position, ref cameraFollowVelocity, cameraSmoothTime * Time.deltaTime);
-            transform.position = targetPosition;
+            lookAngle = player.eulerAngles.y;
         }
-        else
+    }
+
+    private void LateUpdate()
+    {
+        if (player == null || inputManager == null)
         {
-            targetPosition = Vector3.SmoothDamp(transform.position, player.transform.position, ref cameraFollowVelocity, cameraSmoothTime * Time.deltaTime);
-            transform.position = targetPosition;
+            return;
         }
 
+        transform.position = player.position + targetOffset;
 
-    }
+        float currentLookSpeed = normalLookSpeed;
 
-    private void RotateCamera()
-    {
-        lookAmountVertical = lookAmountVertical + (inputManager.horizontalCameraInput);
-        lookAmountHorizontal = lookAmountHorizontal - (inputManager.verticalCameraInput);
-        lookAmountHorizontal = Mathf.Clamp(lookAmountHorizontal, minimumPivotAngle, maximumPivotAngle);
+        if (playerController != null && playerController.isAiming)
+        {
+            currentLookSpeed = aimLookSpeed;
+        }
 
-        cameraRotation = Vector3.zero;
-        cameraRotation.y = lookAmountVertical;
-        targetRotation = Quaternion.Euler(cameraRotation);
-        targetRotation = Quaternion.Slerp(transform.rotation, targetRotation, cameraSmoothTime);
-        transform.rotation = targetRotation;
+        lookAngle += inputManager.horizontalCameraInput * currentLookSpeed * Time.deltaTime;
+        pivotAngle -= inputManager.verticalCameraInput * currentLookSpeed * Time.deltaTime;
+        pivotAngle = Mathf.Clamp(pivotAngle, minimumPivot, maximumPivot);
 
         cameraRotation = Vector3.zero;
-        cameraRotation.x = lookAmountHorizontal;
-        targetRotation = Quaternion.Euler(cameraRotation);
-        targetRotation = Quaternion.Slerp(cameraPivot.localRotation, targetRotation, cameraSmoothTime);
-        cameraPivot.localRotation = targetRotation;
+        cameraRotation.x = pivotAngle;
+        cameraRotation.y = lookAngle;
+
+        transform.rotation = Quaternion.Euler(cameraRotation);
     }
-        
 }
-
