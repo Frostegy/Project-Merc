@@ -1,11 +1,11 @@
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 using Unity.Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
     InputManager inputManager;
     AnimatorManager animatorManager;
-    Animator animator;
     PlayerEquipmentManager playerEquipmentManager;
 
     public Camera gameplayCamera;
@@ -23,21 +23,16 @@ public class PlayerController : MonoBehaviour
     public bool lockCameraPosition = false;
     public float lookSpeed = 1f;
 
+    [Header("Rig Aiming")]
+    public Rig aimRig;
+    public Transform aimTarget;
+    public float aimDuration = 0.3f;
+
     [Header("Aiming")]
     public LayerMask aimLayerMask;
     public Transform debugTransform;
     public float movementRotationSpeed = 3.5f;
     public float aimingRotationSpeed = 20f;
-
-    [Header("Animator")]
-    public float aimingLayerBlendSpeed = 13f;
-
-    [Header("Aim Sway")]
-    public float aimSwayPositionAmount = 0.005f;
-    public float aimSwayRotationAmount = 1.5f;
-    public float aimSwaySmoothSpeed = 12f;
-
-    public Transform aimTarget;
 
     [HideInInspector] public bool isAiming;
     [HideInInspector] public Vector3 aimWorldPosition;
@@ -48,19 +43,12 @@ public class PlayerController : MonoBehaviour
     Quaternion targetRotation;
     Quaternion playerRotation;
 
-    int aimingLayerIndex;
-
-    Transform cachedRightHandTarget;
-    Vector3 cachedRightHandLocalPosition;
-    Quaternion cachedRightHandLocalRotation;
-
     const float threshold = 0.01f;
 
     private void Awake()
     {
         inputManager = GetComponent<InputManager>();
         animatorManager = GetComponent<AnimatorManager>();
-        animator = GetComponent<Animator>();
         playerEquipmentManager = GetComponent<PlayerEquipmentManager>();
 
         if (gameplayCamera == null)
@@ -77,11 +65,9 @@ public class PlayerController : MonoBehaviour
             cinemachineTargetPitch = 0f;
         }
 
-        aimingLayerIndex = animator.GetLayerIndex("Aiming");
-
-        if (aimingLayerIndex != -1)
+        if (aimRig != null)
         {
-            animator.SetLayerWeight(aimingLayerIndex, 0f);
+            aimRig.weight = 0f;
         }
     }
 
@@ -94,9 +80,9 @@ public class PlayerController : MonoBehaviour
         HandleAiming();
         HandleCameraState();
         HandleAnimatorValues();
-        HandleHandIK();
+        //HandleHandIK();
         HandleRotation();
-        HandleAimSway();
+        HandleShooting();
     }
 
     private void HandleCameraRotation()
@@ -129,8 +115,6 @@ public class PlayerController : MonoBehaviour
         Vector2 screenCentrePoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = gameplayCamera.ScreenPointToRay(screenCentrePoint);
 
-        
-
         if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimLayerMask))
         {
             aimWorldPosition = raycastHit.point;
@@ -155,14 +139,15 @@ public class PlayerController : MonoBehaviour
     {
         isAiming = inputManager.aimingInput;
 
-        if (aimingLayerIndex != -1)
+        if (aimRig != null)
         {
             float targetWeight = isAiming ? 1f : 0f;
-            float currentWeight = animator.GetLayerWeight(aimingLayerIndex);
+            float blendSpeed = aimDuration <= 0f ? 999f : 1f / aimDuration;
 
-            animator.SetLayerWeight(
-                aimingLayerIndex,
-                Mathf.Lerp(currentWeight, targetWeight, Time.deltaTime * aimingLayerBlendSpeed)
+            aimRig.weight = Mathf.MoveTowards(
+                aimRig.weight,
+                targetWeight,
+                Time.deltaTime * blendSpeed
             );
         }
 
@@ -209,20 +194,20 @@ public class PlayerController : MonoBehaviour
 
         if (isAiming)
         {
-            animatorManager.rightHandIK.weight = 1;
-            animatorManager.leftHandIK.weight = 1;
+            animatorManager.rightHandIK.weight = 1f;
+            animatorManager.leftHandIK.weight = 1f;
             return;
         }
 
         if (inputManager.verticalMovementInput != 0 || inputManager.horizontalMovementInput != 0)
         {
-            animatorManager.rightHandIK.weight = 0;
-            animatorManager.leftHandIK.weight = 0;
+            animatorManager.rightHandIK.weight = 0f;
+            animatorManager.leftHandIK.weight = 0f;
         }
         else
         {
-            animatorManager.rightHandIK.weight = 1;
-            animatorManager.leftHandIK.weight = 1;
+            animatorManager.rightHandIK.weight = 1f;
+            animatorManager.leftHandIK.weight = 1f;
         }
     }
 
@@ -230,27 +215,14 @@ public class PlayerController : MonoBehaviour
     {
         if (isAiming)
         {
-            Vector3 worldAimTarget = aimWorldPosition;
-            worldAimTarget.y = transform.position.y;
+            float yaw = gameplayCamera.transform.eulerAngles.y;
+            Quaternion aimRotation = Quaternion.Euler(0f, yaw, 0f);
 
-            Vector3 aimDirection = (worldAimTarget - transform.position).normalized;
-
-            if (aimDirection != Vector3.zero)
-            {
-                float angleToAim = Vector3.SignedAngle(transform.forward, aimDirection, Vector3.up);
-
-                // let the spine/head rig handle small aim changes
-                // only rotate the whole body when the angle gets bigger
-                if (Mathf.Abs(angleToAim) > 25f)
-                {
-                    Quaternion aimRotation = Quaternion.LookRotation(aimDirection);
-                    transform.rotation = Quaternion.Slerp(
-                        transform.rotation,
-                        aimRotation,
-                        Time.deltaTime * aimingRotationSpeed
-                    );
-                }
-            }
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                aimRotation,
+                Time.deltaTime * aimingRotationSpeed
+            );
         }
         else
         {
@@ -273,66 +245,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CacheRightHandTarget()
+    private void HandleShooting()
     {
-        if (animatorManager == null || animatorManager.rightHandIK == null)
+        if (inputManager.shootInput && isAiming)
         {
-            return;
+            inputManager.shootInput = false;
+
+            if (playerEquipmentManager.weaponAnimator != null)
+            {
+                playerEquipmentManager.weaponAnimator.ShootWeapon(gameplayCamera, aimWorldPosition);
+            }
         }
-
-        Transform currentTarget = animatorManager.rightHandIK.data.target;
-
-        if (currentTarget == null)
-        {
-            return;
-        }
-
-        if (cachedRightHandTarget != currentTarget)
-        {
-            cachedRightHandTarget = currentTarget;
-            cachedRightHandLocalPosition = cachedRightHandTarget.localPosition;
-            cachedRightHandLocalRotation = cachedRightHandTarget.localRotation;
-        }
-    }
-
-    private void HandleAimSway()
-    {
-        CacheRightHandTarget();
-
-        if (cachedRightHandTarget == null)
-        {
-            return;
-        }
-
-        Vector3 targetLocalPosition = cachedRightHandLocalPosition;
-        Quaternion targetLocalRotation = cachedRightHandLocalRotation;
-
-        if (isAiming)
-        {
-            float lookX = inputManager.horizontalCameraInput;
-            float lookY = inputManager.verticalCameraInput;
-
-            float swayPosX = Mathf.Clamp(-lookX * aimSwayPositionAmount, -aimSwayPositionAmount, aimSwayPositionAmount);
-            float swayPosY = Mathf.Clamp(-lookY * aimSwayPositionAmount, -aimSwayPositionAmount, aimSwayPositionAmount);
-
-            float swayRotY = Mathf.Clamp(-lookX * aimSwayRotationAmount, -aimSwayRotationAmount, aimSwayRotationAmount);
-            float swayRotX = Mathf.Clamp(lookY * aimSwayRotationAmount, -aimSwayRotationAmount, aimSwayRotationAmount);
-
-            targetLocalPosition += new Vector3(swayPosX, swayPosY, 0f);
-            targetLocalRotation *= Quaternion.Euler(swayRotX, swayRotY, 0f);
-        }
-
-        cachedRightHandTarget.localPosition = Vector3.Lerp(
-            cachedRightHandTarget.localPosition,
-            targetLocalPosition,
-            Time.deltaTime * aimSwaySmoothSpeed
-        );
-
-        cachedRightHandTarget.localRotation = Quaternion.Slerp(
-            cachedRightHandTarget.localRotation,
-            targetLocalRotation,
-            Time.deltaTime * aimSwaySmoothSpeed
-        );
     }
 
     private float ClampAngle(float angle, float min, float max)
