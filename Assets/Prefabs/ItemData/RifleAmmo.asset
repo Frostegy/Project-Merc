@@ -21,4 +21,5 @@ MonoBehaviour:
   maxStack: 1
   weaponData: {fileID: 0}
   ammoType: 2
-  ammoAmount: 10
+  ammoAmount: 15
+  healAmount: 0

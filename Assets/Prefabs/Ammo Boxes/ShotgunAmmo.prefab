@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4701710222919585995}
   - component: {fileID: 8111399949373540370}
   - component: {fileID: 8198458927682243732}
+  - component: {fileID: 595795227222730618}
   m_Layer: 0
   m_Name: ShotgunAmmo
   m_TagString: Untagged
@@ -128,3 +129,22 @@ MonoBehaviour:
   itemData: {fileID: 11400000, guid: 52edff6ef7517a74082eb6626f5fa8a3, type: 2}
   amount: 1
   logPickup: 1
+--- !u!114 &595795227222730618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 470295062156071762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31370897121be5a4eb5e87ec104abbd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupVisuals
+  bobHeight: 0.08
+  bobSpeed: 2
+  rotateSpeed: 45
+  glowLight: {fileID: 0}
+  minIntensity: 1.2
+  maxIntensity: 2
+  pulseSpeed: 2

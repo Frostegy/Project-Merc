@@ -16,12 +16,12 @@ MonoBehaviour:
   weaponIcon: {fileID: -302157771, guid: 8c2328f9166da4041a148930e6ea7b88, type: 3}
   ammoType: 1
   weaponPrefab: {fileID: 853539939937750954, guid: 8c7e3a5bffdbab54a87f5678bbf6b321, type: 3}
-  damage: 10
+  damage: 16
   fireRate: 1
   spread: 0.07
   range: 22
   pelletsPerShot: 8
-  allowButtonHold: 1
+  allowButtonHold: 0
   magazineSize: 10
   reloadTime: 3
   inventorySize: {x: 5, y: 2}

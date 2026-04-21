@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1066766902368801030}
   - component: {fileID: 7113961432186133056}
   - component: {fileID: 5634617056455116986}
+  - component: {fileID: 3521876510538211603}
   m_Layer: 0
   m_Name: HealingItem
   m_TagString: Untagged
@@ -128,3 +129,22 @@ MonoBehaviour:
   itemData: {fileID: 11400000, guid: 9924ac11755ebe74da6175a20b696ca2, type: 2}
   amount: 1
   logPickup: 1
+--- !u!114 &3521876510538211603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7581097805516386567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31370897121be5a4eb5e87ec104abbd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PickupVisuals
+  bobHeight: 0.08
+  bobSpeed: 2
+  rotateSpeed: 45
+  glowLight: {fileID: 0}
+  minIntensity: 1.2
+  maxIntensity: 2
+  pulseSpeed: 2

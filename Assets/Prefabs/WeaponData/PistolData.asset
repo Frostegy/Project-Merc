@@ -16,7 +16,7 @@ MonoBehaviour:
   weaponIcon: {fileID: -29961277, guid: 8c2328f9166da4041a148930e6ea7b88, type: 3}
   ammoType: 0
   weaponPrefab: {fileID: 864308754106309109, guid: ee4e18b23c21721479865b0d8194e80c, type: 3}
-  damage: 20
+  damage: 10
   fireRate: 3.5
   spread: 0
   range: 60
