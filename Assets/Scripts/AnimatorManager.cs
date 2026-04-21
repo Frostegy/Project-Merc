@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
+
 
 public class AnimatorManager : MonoBehaviour
 {
@@ -7,15 +7,10 @@ public class AnimatorManager : MonoBehaviour
     float snappedHorizontal;
     float snappedVertical;
 
-    public TwoBoneIKConstraint rightHandIK;
-    public TwoBoneIKConstraint leftHandIK;
-
-    RigBuilder rigBuilder;
-
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        rigBuilder = GetComponent<RigBuilder>();
+      
     }
 
     public void HandleAnimatorValues(float horizontalMovement, float verticalMovement, bool isRunning)
@@ -55,10 +50,5 @@ public class AnimatorManager : MonoBehaviour
         animator.SetFloat("Vertical", snappedVertical, 0.1f, Time.deltaTime);
     }
 
-    public void AssignHandIK(RightHandIKTarget rightTarget, LeftHandIKTarget leftTarget)
-    {
-        rightHandIK.data.target = rightTarget.transform;
-        leftHandIK.data.target = leftTarget.transform;
-        rigBuilder.Build();
-    }
+    
 }

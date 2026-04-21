@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2787728f5589df4b80dffe344fccad9, type: 3}
+  m_Name: ShotgunData
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: shotgun
+  weaponIcon: {fileID: -302157771, guid: 8c2328f9166da4041a148930e6ea7b88, type: 3}
+  ammoType: 1
+  weaponPrefab: {fileID: 853539939937750954, guid: 8c7e3a5bffdbab54a87f5678bbf6b321, type: 3}
+  damage: 10
+  fireRate: 1
+  spread: 0.07
+  range: 22
+  pelletsPerShot: 8
+  allowButtonHold: 1
+  magazineSize: 10
+  reloadTime: 3
+  inventorySize: {x: 5, y: 2}

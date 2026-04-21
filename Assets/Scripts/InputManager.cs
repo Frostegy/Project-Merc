@@ -16,6 +16,17 @@ public class InputManager : MonoBehaviour
     public bool aimingInput;
     public bool shootInput;
 
+    public bool shootPressedInput;
+    public bool reloadPressedInput;
+    public bool holsterPressedInput;
+
+    public bool slot1PressedInput;
+    public bool slot2PressedInput;
+
+    public bool inputLocked;
+
+    bool previousShootInput;
+
     private void OnEnable()
     {
         if (playerControls == null)
@@ -51,10 +62,33 @@ public class InputManager : MonoBehaviour
 
     public void HandleAllInputs()
     {
+        if (inputLocked)
+        {
+            horizontalMovementInput = 0f;
+            verticalMovementInput = 0f;
+            horizontalCameraInput = 0f;
+            verticalCameraInput = 0f;
+
+            runInput = false;
+            aimingInput = false;
+            shootInput = false;
+            shootPressedInput = false;
+            reloadPressedInput = false;
+            holsterPressedInput = false;
+
+            return;
+        }
+
         horizontalMovementInput = movementInput.x;
         verticalMovementInput = movementInput.y;
 
         horizontalCameraInput = cameraInput.x;
         verticalCameraInput = cameraInput.y;
+
+        shootPressedInput = shootInput && !previousShootInput;
+        previousShootInput = shootInput;
+
+        reloadPressedInput = Input.GetKeyDown(KeyCode.R);
+        holsterPressedInput = Input.GetKeyDown(KeyCode.X);
     }
 }

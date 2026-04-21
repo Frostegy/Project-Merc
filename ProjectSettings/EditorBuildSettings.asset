@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/WRONG VERSION.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Scenes/MainMenu.unity
+    guid: 7e6173ea9576dcb4f874a9c4db060ee2
+  - enabled: 1
+    path: Assets/Scenes/CharacterSelect.unity
+    guid: 54d24ef4aa363024295bc76000cbf6ea
+  - enabled: 1
+    path: Assets/Scenes/MapSelect.unity
+    guid: a95cef63cdb917e439790f58671bc2a1
+  - enabled: 1
+    path: Assets/Scenes/FirstMap.unity
+    guid: 08e037695e69d08428d9cf7e27b6be07
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

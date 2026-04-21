@@ -731,7 +731,6 @@ GameObject:
   - component: {fileID: 6538244213064738306}
   - component: {fileID: 5796566196941160427}
   - component: {fileID: 2569023656684583207}
-  - component: {fileID: 5782114960689448608}
   - component: {fileID: 7055536108632709870}
   m_Layer: 0
   m_Name: Player
@@ -870,6 +869,7 @@ MonoBehaviour:
   cameraAngleOverride: 0
   lockCameraPosition: 0
   lookSpeed: 1
+  aimTarget: {fileID: 0}
   aimLayerMask:
     serializedVersion: 2
     m_Bits: 0
@@ -897,20 +897,6 @@ MonoBehaviour:
   runInput: 0
   aimingInput: 0
   shootInput: 0
---- !u!114 &5782114960689448608
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2997994007455509077}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca341aa9e8cf8d84eb32df094e73ede6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: '::'
-  weapon: {fileID: 11400000, guid: 2c7349d52a64477488b8ee766f1a6680, type: 2}
-  weaponAnimator: {fileID: 0}
 --- !u!114 &7055536108632709870
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
 using Unity.Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
     InputManager inputManager;
     AnimatorManager animatorManager;
-    PlayerEquipmentManager playerEquipmentManager;
+    ActiveWeapon activeWeapon;
 
     public Camera gameplayCamera;
     public Transform cinemachineCameraTarget;
@@ -16,6 +15,9 @@ public class PlayerController : MonoBehaviour
     public CinemachineCamera normalCamera;
     public CinemachineCamera aimCamera;
 
+    public bool isGrabbed;
+    private Transform grabTarget;
+
     [Header("Cinemachine")]
     public float topClamp = 70f;
     public float bottomClamp = -30f;
@@ -23,13 +25,9 @@ public class PlayerController : MonoBehaviour
     public bool lockCameraPosition = false;
     public float lookSpeed = 1f;
 
-    [Header("Rig Aiming")]
-    public Rig aimRig;
-    public Transform aimTarget;
-    public float aimDuration = 0.3f;
-
     [Header("Aiming")]
     public LayerMask aimLayerMask;
+    public Transform aimTarget;
     public Transform debugTransform;
     public float movementRotationSpeed = 3.5f;
     public float aimingRotationSpeed = 20f;
@@ -45,52 +43,42 @@ public class PlayerController : MonoBehaviour
 
     const float threshold = 0.01f;
 
-    private void Awake()
+    void Awake()
     {
         inputManager = GetComponent<InputManager>();
         animatorManager = GetComponent<AnimatorManager>();
-        playerEquipmentManager = GetComponent<PlayerEquipmentManager>();
+        activeWeapon = GetComponentInChildren<ActiveWeapon>();
 
         if (gameplayCamera == null)
-        {
             gameplayCamera = Camera.main;
-        }
     }
 
-    private void Start()
+    void Start()
     {
         if (cinemachineCameraTarget != null)
         {
             cinemachineTargetYaw = cinemachineCameraTarget.rotation.eulerAngles.y;
             cinemachineTargetPitch = 0f;
         }
-
-        if (aimRig != null)
-        {
-            aimRig.weight = 0f;
-        }
     }
 
-    private void Update()
+    void Update()
     {
         inputManager.HandleAllInputs();
 
         HandleCameraRotation();
         HandleAimRaycast();
+        HandleShooting();
         HandleAiming();
         HandleCameraState();
         HandleAnimatorValues();
-        //HandleHandIK();
         HandleRotation();
-        HandleShooting();
     }
 
-    private void HandleCameraRotation()
+    void HandleCameraRotation()
     {
         if (cinemachineCameraTarget == null || lockCameraPosition)
-        {
             return;
-        }
 
         Vector2 lookInput = new Vector2(inputManager.horizontalCameraInput, inputManager.verticalCameraInput);
 
@@ -110,59 +98,45 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    private void HandleAimRaycast()
+    void HandleAimRaycast()
     {
         Vector2 screenCentrePoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
         Ray ray = gameplayCamera.ScreenPointToRay(screenCentrePoint);
 
         if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimLayerMask))
-        {
             aimWorldPosition = raycastHit.point;
-        }
         else
-        {
             aimWorldPosition = ray.GetPoint(50f);
-        }
 
         if (debugTransform != null)
-        {
             debugTransform.position = aimWorldPosition;
-        }
 
         if (aimTarget != null)
-        {
             aimTarget.position = aimWorldPosition;
-        }
     }
 
-    private void HandleAiming()
+    void HandleAiming()
     {
-        isAiming = inputManager.aimingInput;
+        bool canAim = inputManager.aimingInput;
 
-        if (aimRig != null)
+        if (activeWeapon != null && activeWeapon.IsHolstered)
         {
-            float targetWeight = isAiming ? 1f : 0f;
-            float blendSpeed = aimDuration <= 0f ? 999f : 1f / aimDuration;
-
-            aimRig.weight = Mathf.MoveTowards(
-                aimRig.weight,
-                targetWeight,
-                Time.deltaTime * blendSpeed
-            );
+            canAim = false;
         }
+
+        isAiming = canAim;
+
+        if (activeWeapon != null)
+            activeWeapon.SetAiming(isAiming);
 
         if (crossHair != null)
-        {
             crossHair.SetActive(isAiming);
-        }
     }
 
-    private void HandleCameraState()
+    void HandleCameraState()
     {
         if (normalCamera == null || aimCamera == null)
-        {
             return;
-        }
 
         if (isAiming)
         {
@@ -176,7 +150,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleAnimatorValues()
+    void HandleAnimatorValues()
     {
         animatorManager.HandleAnimatorValues(
             inputManager.horizontalMovementInput,
@@ -185,33 +159,7 @@ public class PlayerController : MonoBehaviour
         );
     }
 
-    private void HandleHandIK()
-    {
-        if (animatorManager == null || animatorManager.rightHandIK == null || animatorManager.leftHandIK == null)
-        {
-            return;
-        }
-
-        if (isAiming)
-        {
-            animatorManager.rightHandIK.weight = 1f;
-            animatorManager.leftHandIK.weight = 1f;
-            return;
-        }
-
-        if (inputManager.verticalMovementInput != 0 || inputManager.horizontalMovementInput != 0)
-        {
-            animatorManager.rightHandIK.weight = 0f;
-            animatorManager.leftHandIK.weight = 0f;
-        }
-        else
-        {
-            animatorManager.rightHandIK.weight = 1f;
-            animatorManager.leftHandIK.weight = 1f;
-        }
-    }
-
-    private void HandleRotation()
+    void HandleRotation()
     {
         if (isAiming)
         {
@@ -227,9 +175,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             if (cinemachineCameraTarget == null)
-            {
                 return;
-            }
 
             targetRotation = Quaternion.Euler(0f, cinemachineCameraTarget.eulerAngles.y, 0f);
             playerRotation = Quaternion.Slerp(
@@ -239,37 +185,66 @@ public class PlayerController : MonoBehaviour
             );
 
             if (inputManager.verticalMovementInput != 0 || inputManager.horizontalMovementInput != 0)
-            {
                 transform.rotation = playerRotation;
-            }
         }
     }
 
-    private void HandleShooting()
+    void HandleShooting()
     {
-        if (inputManager.shootInput && isAiming)
+        if (activeWeapon == null)
         {
-            inputManager.shootInput = false;
+            return;
+        }
 
-            if (playerEquipmentManager.weaponAnimator != null)
-            {
-                playerEquipmentManager.weaponAnimator.ShootWeapon(gameplayCamera, aimWorldPosition);
-            }
+        activeWeapon.SetFiringInput(
+            isAiming,
+            inputManager.shootInput,
+            inputManager.shootPressedInput
+        );
+
+        if (inputManager.reloadPressedInput)
+        {
+            activeWeapon.TryReload();
+        }
+
+        if (inputManager.holsterPressedInput)
+        {
+            activeWeapon.ToggleHolster();
         }
     }
 
-    private float ClampAngle(float angle, float min, float max)
+
+    float ClampAngle(float angle, float min, float max)
     {
-        if (angle < -360f)
-        {
-            angle += 360f;
-        }
-
-        if (angle > 360f)
-        {
-            angle -= 360f;
-        }
-
+        if (angle < -360f) angle += 360f;
+        if (angle > 360f) angle -= 360f;
         return Mathf.Clamp(angle, min, max);
+    }
+
+    public void BeginGrab(Transform attachPoint)
+    {
+        isGrabbed = true;
+        grabTarget = attachPoint;
+
+        if (inputManager != null)
+            inputManager.inputLocked = true;
+
+        if (activeWeapon != null)
+        {
+            activeWeapon.SetAiming(false);
+            activeWeapon.SetFiringInput(false, false, false);
+        }
+
+        if (crossHair != null)
+            crossHair.SetActive(false);
+    }
+
+    public void EndGrab()
+    {
+        isGrabbed = false;
+        grabTarget = null;
+
+        if (inputManager != null)
+            inputManager.inputLocked = false;
     }
 }
