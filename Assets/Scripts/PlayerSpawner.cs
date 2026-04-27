@@ -14,6 +14,7 @@ public class PlayerSpawner : MonoBehaviour
     [SerializeField] private CinemachineCamera normalCamera;
     [SerializeField] private CinemachineCamera aimCamera;
     [SerializeField] private GameObject crossHair;
+    [SerializeField] private Transform sceneAimTarget;
 
     [Header("UI References")]
     [SerializeField] private InventoryUI inventoryUI;
@@ -68,6 +69,9 @@ public class PlayerSpawner : MonoBehaviour
 
         if (playerController != null)
         {
+            if (sceneAimTarget != null)
+                playerController.aimTarget = sceneAimTarget;
+
             if (gameplayCamera != null)
                 playerController.gameplayCamera = gameplayCamera;
 

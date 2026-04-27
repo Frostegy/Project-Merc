@@ -2182,7 +2182,7 @@ MonoBehaviour:
   armStaggerChance: 0.2
   legStaggerChance: 0.5
   healDropChance: 0.1
-  ammoDropChance: 0.6
+  ammoDropChance: 0.5
   healPickupPrefab: {fileID: 7581097805516386567, guid: 939cec6110a2581418c7a9e9ddadb0b2, type: 3}
   handgunAmmoPickupPrefab: {fileID: 7773526073226093689, guid: a46bd7d5f89341246b865f396cd2bc00, type: 3}
   shotgunAmmoPickupPrefab: {fileID: 470295062156071762, guid: ab76d7a1cd8467340a1e7a1231ce2d4c, type: 3}
